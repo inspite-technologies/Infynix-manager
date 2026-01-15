@@ -1,0 +1,12 @@
+<div class="app-container">
+  <app-manager-sidebar 
+    (sidebarToggled)="onSidebarToggle($event)"
+    (menuItemClicked)="onMenuItemClick($event)">
+  </app-manager-sidebar>
+  
+  <div class="main-content" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

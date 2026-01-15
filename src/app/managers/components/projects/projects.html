@@ -1,0 +1,596 @@
+<!-- Projects Container -->
+<div class="projects-container">
+  <!-- Header Section -->
+  <div class="projects-header">
+    <h1 class="page-title">All Projects</h1>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search projects..."
+        [(ngModel)]="searchQuery">
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'all'"
+        (click)="setFilter('all')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        All Projects
+      </button>
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'active'"
+        (click)="setFilter('active')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        In Progress
+      </button>
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'completed'"
+        (click)="setFilter('completed')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Completed
+      </button>
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'hold'"
+        (click)="setFilter('hold')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        On Hold
+      </button>
+    </div>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="projects-grid">
+    <!-- PROJECT CARD WITH DYNAMIC GRAPH -->
+    <div 
+      *ngFor="let project of filteredProjects" 
+      [ngClass]="getCardClass(project)"
+      (click)="openProjectDetails(project)">
+      
+      <!-- Card Header with Title and Badge -->
+      <div class="card-header">
+        <div class="card-title-section">
+          <h3 class="project-name">{{ project.name }}</h3>
+          <p class="project-desc">{{ project.description }}</p>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(project.status)">
+          {{ getStatusLabel(project.status) }}
+        </span>
+      </div>
+
+      <!-- Large Progress Number -->
+      <div class="progress-large">
+        <span class="progress-number">{{ project.progress }}</span>
+        <span class="progress-percent">%</span>
+      </div>
+
+      <!-- Mini Graph (SVG Line Chart) - DYNAMIC PATH -->
+      <div class="mini-graph">
+        <svg viewBox="0 0 200 50" preserveAspectRatio="none">
+          <defs>
+            <linearGradient [id]="'graphGradient-' + project.id" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+              <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:0" />
+            </linearGradient>
+          </defs>
+          
+          <!-- Area under the line -->
+          <path class="graph-area" [attr.d]="getGraphAreaPath(project)" [attr.fill]="'url(#graphGradient-' + project.id + ')'" />
+          
+          <!-- Line graph -->
+          <path class="graph-line" [attr.d]="getGraphPath(project)" />
+        </svg>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-label">In Progress</span>
+          <span class="stat-value">{{ project.inProgress }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Overdue</span>
+          <span class="stat-value" [class.overdue]="project.overdue > 0">{{ project.overdue }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Add Button -->
+  <button class="fab" (click)="openCreateProjectModal()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Create Project Modal -->
+<div class="modal-overlay" *ngIf="showCreateProjectModal" (click)="closeCreateProjectModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create New Project</h2>
+      <p class="modal-subtitle">Enter the details of your upcoming project</p>
+    </div>
+
+    <form class="modal-form" (submit)="$event.preventDefault(); createProject()">
+      <!-- Project Name -->
+      <div class="form-group">
+        <label class="form-label">Project Name</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M2 6h16M2 10h16M2 14h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="e.g. Mobile redesign"
+            [(ngModel)]="newProject.name"
+            name="projectName"
+            required>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 3h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <textarea 
+            class="form-textarea" 
+            placeholder="What is this project about?"
+            [(ngModel)]="newProject.description"
+            name="description"
+            rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- Category -->
+      <div class="form-group">
+        <label class="form-label">Select Category</label>
+        <div class="category-chips">
+          <button 
+            *ngFor="let category of categories"
+            type="button"
+            class="category-chip"
+            [class.active]="newProject.category === category.id"
+            (click)="newProject.category = category.id">
+            <svg *ngIf="newProject.category === category.id" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M13.5 4.5L6 12l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ category.name }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Color Selection -->
+      <div class="form-group">
+        <label class="form-label">Card Color</label>
+        <div class="category-chips">
+          <button 
+            *ngFor="let color of colors"
+            type="button"
+            class="category-chip"
+            [class.active]="newProject.color === color.id"
+            (click)="newProject.color = color.id">
+            <svg *ngIf="newProject.color === color.id" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M13.5 4.5L6 12l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ color.name }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Graph Pattern Selection -->
+      <div class="form-group">
+        <label class="form-label">Graph Pattern</label>
+        <div class="category-chips">
+          <button 
+            *ngFor="let pattern of graphPatterns"
+            type="button"
+            class="category-chip"
+            [class.active]="newProject.graphPattern === pattern.id"
+            (click)="newProject.graphPattern = pattern.id">
+            <svg *ngIf="newProject.graphPattern === pattern.id" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M13.5 4.5L6 12l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ pattern.name }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Assign Employees -->
+      <div class="form-group">
+        <label class="form-label">Assign Employees</label>
+        <div class="employee-chips">
+          <button 
+            *ngFor="let employee of employees"
+            type="button"
+            class="employee-chip"
+            [class.selected]="isEmployeeSelected(employee.id)"
+            (click)="toggleEmployee(employee.id)">
+            <div class="employee-avatar">{{ employee.initials }}</div>
+            <span>{{ employee.name }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Due Date -->
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M16 3h-1V2a1 1 0 0 0-2 0v1H7V2a1 1 0 0 0-2 0v1H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM4 7h12v2H4V7z" fill="currentColor"/>
+          </svg>
+          <input 
+            type="date" 
+            class="form-input"
+            [(ngModel)]="newProject.dueDate"
+            name="dueDate"
+            required>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeCreateProjectModal()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary">
+          Create Project
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Project Details Modal -->
+<div class="modal-overlay details-modal" *ngIf="showProjectDetailsModal && selectedProject" (click)="closeProjectDetails()">
+  <div class="modal-content details-content" (click)="$event.stopPropagation()">
+    <!-- Details Header -->
+    <div class="details-header">
+      <button class="back-btn" (click)="closeProjectDetails()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="settings-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 1v6m0 6v6M23 12h-6m-6 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Project Info Card - DYNAMIC COLOR -->
+    <div class="project-info-card" [ngClass]="selectedProject.color">
+      <div class="info-header">
+        <span class="status-badge" [ngClass]="getStatusClass(selectedProject.status)">
+          {{ getStatusLabel(selectedProject.status) }}
+        </span>
+        <span class="category-badge">{{ selectedProject.category }}</span>
+      </div>
+
+      <div class="info-details">
+        <div class="info-item">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M16 3h-1V2a1 1 0 0 0-2 0v1H7V2a1 1 0 0 0-2 0v1H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" fill="currentColor"/>
+          </svg>
+          <div>
+            <span class="info-label">Due Date</span>
+            <span class="info-value">{{ formatDate(selectedProject.dueDate) }}</span>
+          </div>
+        </div>
+
+        <div class="team-circles">
+          <div 
+            *ngFor="let user of selectedProject.assignedUsers" 
+            class="team-circle"
+            [title]="user.name">
+            {{ user.initials }}
+          </div>
+        </div>
+      </div>
+
+      <div class="info-progress">
+        <div class="progress-header">
+          <span>Project Progress</span>
+          <span class="progress-value">{{ selectedProject.progress }}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="selectedProject.progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="details-tabs">
+      <button 
+        class="details-tab" 
+        [class.active]="activeDetailsTab === 'tasks'"
+        (click)="setDetailsTab('tasks')">
+        Tasks
+      </button>
+      <button 
+        class="details-tab"
+        [class.active]="activeDetailsTab === 'review'"
+        (click)="setDetailsTab('review')">
+        Review
+      </button>
+      <button 
+        class="details-tab"
+        [class.active]="activeDetailsTab === 'requests'"
+        (click)="setDetailsTab('requests')">
+        Requests
+      </button>
+      <button 
+        class="details-tab"
+        [class.active]="activeDetailsTab === 'team'"
+        (click)="setDetailsTab('team')">
+        Team
+      </button>
+    </div>
+
+    <!-- Tasks Tab Content -->
+    <div class="tasks-list" *ngIf="activeDetailsTab === 'tasks'">
+      <div *ngFor="let task of selectedProject.tasks" class="task-item">
+        <div class="task-header">
+          <span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">
+            {{ task.priority }}
+          </span>
+          <button class="task-menu-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+              <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+              <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+
+        <h4 class="task-name">{{ task.name }}</h4>
+
+        <div class="task-footer">
+          <div class="task-assignee">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 1c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+            </svg>
+            <span>{{ task.assignedTo }}</span>
+          </div>
+          <div class="task-due">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm1-8V4H7v5l4 2 1-1.5-3-1.5z" fill="currentColor"/>
+            </svg>
+            <span>{{ getDaysLeft(task.dueDate) }} Days left</span>
+          </div>
+        </div>
+
+        <div class="task-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="task.progress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="selectedProject.tasks.length === 0" class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 52c-13.234 0-24-10.766-24-24S18.766 8 32 8s24 10.766 24 24-10.766 24-24 24z" fill="currentColor" opacity="0.3"/>
+        </svg>
+        <p>No tasks yet</p>
+        <span>Create your first task to get started</span>
+      </div>
+    </div>
+
+    <!-- Review Tab Content -->
+    <div class="tab-content" *ngIf="activeDetailsTab === 'review'">
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 52c-13.234 0-24-10.766-24-24S18.766 8 32 8s24 10.766 24 24-10.766 24-24 24z" fill="currentColor" opacity="0.3"/>
+          <path d="M32 20v16m0 8h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <p>No reviews yet</p>
+        <span>Reviews and feedback will appear here</span>
+      </div>
+    </div>
+
+    <!-- Requests Tab Content -->
+    <div class="tab-content" *ngIf="activeDetailsTab === 'requests'">
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 52c-13.234 0-24-10.766-24-24S18.766 8 32 8s24 10.766 24 24-10.766 24-24 24z" fill="currentColor" opacity="0.3"/>
+          <path d="M24 24l8 8 8-8M24 36l8 8 8-8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p>No requests</p>
+        <span>Project requests will appear here</span>
+      </div>
+    </div>
+
+    <!-- Team Tab Content -->
+    <div class="tab-content team-content" *ngIf="activeDetailsTab === 'team'">
+      <div class="team-grid">
+        <div *ngFor="let member of selectedProject.assignedUsers" class="team-member-card">
+          <div class="team-member-avatar-large">
+            {{ member.initials }}
+          </div>
+          <div class="team-member-info">
+            <h4 class="team-member-name">{{ member.name }}</h4>
+            <p class="team-member-role">Team Member</p>
+          </div>
+          <div class="team-member-stats">
+            <div class="stat-item">
+              <span class="stat-label">Tasks</span>
+              <span class="stat-value">{{ getTaskCountForMember(member.name) }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Status</span>
+              <span class="stat-badge active">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State for Team -->
+      <div *ngIf="selectedProject.assignedUsers.length === 0" class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 52c-13.234 0-24-10.766-24-24S18.766 8 32 8s24 10.766 24 24-10.766 24-24 24z" fill="currentColor" opacity="0.3"/>
+          <circle cx="32" cy="24" r="6" stroke="currentColor" stroke-width="3"/>
+          <path d="M20 48c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <p>No team members</p>
+        <span>Assign team members to this project</span>
+      </div>
+    </div>
+
+    <!-- Add Task FAB -->
+    <button class="fab-task" (click)="openCreateTaskModal()" *ngIf="activeDetailsTab === 'tasks'">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Add Task</span>
+    </button>
+  </div>
+</div>
+
+<!-- Create Task Modal -->
+<div class="modal-overlay" *ngIf="showCreateTaskModal" (click)="closeCreateTaskModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create New Task</h2>
+      <p class="modal-subtitle">Enter the details of your upcoming task</p>
+    </div>
+
+    <form class="modal-form" (submit)="$event.preventDefault(); createTask()">
+      <!-- Task Name -->
+      <div class="form-group">
+        <label class="form-label">Task Name</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter task name"
+            [(ngModel)]="newTask.name"
+            name="taskName"
+            required>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 3h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <textarea 
+            class="form-textarea" 
+            placeholder="Describe the task..."
+            [(ngModel)]="newTask.description"
+            name="taskDescription"
+            rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- Priority -->
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <div class="priority-buttons">
+          <button 
+            type="button"
+            class="priority-btn"
+            [class.active]="newTask.priority === 'low'"
+            (click)="newTask.priority = 'low'">
+            Low
+          </button>
+          <button 
+            type="button"
+            class="priority-btn"
+            [class.active]="newTask.priority === 'medium'"
+            (click)="newTask.priority = 'medium'">
+            Medium
+          </button>
+          <button 
+            type="button"
+            class="priority-btn"
+            [class.active]="newTask.priority === 'high'"
+            (click)="newTask.priority = 'high'">
+            High
+          </button>
+        </div>
+      </div>
+
+      <!-- Assign To -->
+      <div class="form-group">
+        <label class="form-label">Assign To</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z" fill="currentColor"/>
+          </svg>
+          <select 
+            class="form-select"
+            [(ngModel)]="newTask.assignedTo"
+            name="assignedTo"
+            required>
+            <option value="">Select team member</option>
+            <option *ngFor="let employee of employees" [value]="employee.name">
+              {{ employee.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Due Date -->
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M16 3h-1V2a1 1 0 0 0-2 0v1H7V2a1 1 0 0 0-2 0v1H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" fill="currentColor"/>
+          </svg>
+          <input 
+            type="date" 
+            class="form-input"
+            [(ngModel)]="newTask.dueDate"
+            name="taskDueDate"
+            required>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeCreateTaskModal()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary">
+          Create Task
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,203 @@
+<!-- Manager Dashboard Component -->
+<div class="dashboard-container">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="banner-content">
+      <div class="banner-text">
+        <h1 class="welcome-title">Welcome back, Manager!</h1>
+        <p class="welcome-subtitle">You have <span class="highlight">5 tasks</span> to review today.</p>
+        <p class="current-time">{{ currentTime }}</p>
+      </div>
+      <div class="banner-icon">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="banner-gradient-overlay"></div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <!-- Ongoing Projects Card -->
+    <div class="stat-card ongoing">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Ongoing Projects</p>
+        <h2 class="stat-value">{{ ongoingProjects }}</h2>
+        <div class="stat-trend up">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+          <span>12% from last month</span>
+        </div>
+      </div>
+      <div class="stat-gradient"></div>
+    </div>
+
+    <!-- Completed Projects Card -->
+    <div class="stat-card completed">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Completed Projects</p>
+        <h2 class="stat-value">{{ completedProjects }}</h2>
+        <div class="stat-trend up">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+          <span>8% from last month</span>
+        </div>
+      </div>
+      <div class="stat-gradient"></div>
+    </div>
+
+    <!-- Pending Tasks Card -->
+    <div class="stat-card pending">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Pending Tasks</p>
+        <h2 class="stat-value">{{ pendingTasks }}</h2>
+        <div class="stat-trend down">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+          <span>3% from last week</span>
+        </div>
+      </div>
+      <div class="stat-gradient"></div>
+    </div>
+
+    <!-- Team Members Card -->
+    <div class="stat-card team">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <p class="stat-label">Team Members</p>
+        <h2 class="stat-value">{{ teamMembers }}</h2>
+        <div class="stat-trend neutral">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>No change</span>
+        </div>
+      </div>
+      <div class="stat-gradient"></div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Section -->
+  <div class="quick-actions">
+    <h3 class="section-title">Quick Actions</h3>
+    <div class="actions-grid">
+      <button class="action-btn primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>Create Project</span>
+      </button>
+      
+      <button class="action-btn secondary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/>
+          <line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        <span>Add Team Member</span>
+      </button>
+      
+      <button class="action-btn tertiary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span>Generate Report</span>
+      </button>
+
+      <button class="action-btn quaternary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>View Calendar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="recent-activity">
+    <div class="section-header">
+      <h3 class="section-title">Recent Activity</h3>
+      <a href="#" class="view-all">View All</a>
+    </div>
+    
+    <div class="activity-list">
+      <div class="activity-item">
+        <div class="activity-icon completed">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <p class="activity-title">Project "Mobile App" completed</p>
+          <p class="activity-time">2 hours ago</p>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon new">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <p class="activity-title">New team member added: Sarah Johnson</p>
+          <p class="activity-time">5 hours ago</p>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon warning">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <p class="activity-title">Deadline approaching for "Website Redesign"</p>
+          <p class="activity-time">1 day ago</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
